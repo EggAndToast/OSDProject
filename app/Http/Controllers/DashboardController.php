@@ -6,6 +6,7 @@ use App\Models\User\User;
 use App\Helpers\DateHelper;
 use App\Models\Contact\Debt;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Helpers\AccountHelper;
 use function Safe\json_encode;
 use App\Helpers\InstanceHelper;
@@ -80,7 +81,65 @@ class DashboardController extends Controller
             2 => AccountHelper::getUpcomingRemindersForMonth(auth()->user()->account, 2),
         ];
 
+        $duplicateContact = collect([]);
+        $referenceId = [];
+        $grabIdOfDuplicates = DB::select("
+        WITH cte AS (
+            SELECT
+                first_name, 
+                last_name, 
+                COUNT(*) occurrences
+            FROM contacts
+            GROUP BY 
+                first_name, 
+                last_name,
+                gender_id
+            HAVING 
+                COUNT(*) > 1
+        )
+        SELECT 
+            A.id
+        FROM contacts A
+            INNER JOIN cte ON 
+                cte.first_name = A.first_name AND 
+                cte.last_name = A.last_name
+        WHERE A.description is null
+        ORDER BY 
+            A.first_name, 
+            A.last_name;
+        ");
+        
+        foreach ($grabIdOfDuplicates as $id) {
+            $referenceId[] = $id->id;
+        }
+
+        if ($referenceId) {
+            implode(',', $referenceId);
+            $duplicateTitle = "Duplicate Contacts. Do edit to prevent confusion";
+
+            $duplicateContactsGet = $account->contacts()->whereIn('id', $referenceId)->get();
+
+        foreach ($duplicateContactsGet as $contact) {
+            $data = [
+                'id' => $contact->hashID(),
+                'has_avatar' => $contact->has_avatar,
+                'avatar_url' => $contact->getAvatarURL(110),
+                'initials' => $contact->getInitials(),
+                'default_avatar_color' => $contact->default_avatar_color,
+                'complete_name' => $contact->name
+            ];
+            $duplicateContact->push(json_encode($data));
+        }
+        }
+        else {
+            $duplicateTitle = "";
+        }
+
+
         $data = [
+            'IdList' => $referenceId,
+            'duplicateTitle' => $duplicateTitle,
+            'duplicateContact' => $duplicateContact,
             'lastUpdatedContacts' => $lastUpdatedContactsCollection,
             'number_of_contacts' => $numberOfContacts,
             'number_of_reminders' => $account->reminders_count,

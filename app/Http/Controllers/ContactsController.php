@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 use App\Helpers\DateHelper;
 use App\Helpers\FormHelper;
 use App\Models\Contact\Tag;
@@ -287,6 +288,55 @@ class ContactsController extends Controller
 
         // list of active features
         $modules = $contact->account->modules()->active()->get();
+        
+        $contactId = $contact->id;
+
+        $grabIdOfDuplicates = DB::select("
+        WITH cte AS (
+            SELECT
+                first_name, 
+                last_name, 
+                COUNT(*) occurrences
+            FROM contacts
+            GROUP BY 
+                first_name, 
+                last_name,
+                gender_id
+            HAVING 
+                COUNT(*) > 1
+        )
+        SELECT 
+            A.id
+        FROM contacts A
+            INNER JOIN cte ON 
+                cte.first_name = A.first_name AND 
+                cte.last_name = A.last_name
+        WHERE A.description is null
+        ORDER BY 
+            A.first_name, 
+            A.last_name;
+        ");
+
+        $duplicateNotification = "";
+        
+        foreach ($grabIdOfDuplicates as $id) {
+            if ($contactId == $id->id) {
+                $duplicateNotification = "- Duplicate";
+            }
+            else {
+                $duplicateNotification = "";
+            }
+        }
+
+        $data = [ 
+            'isDuplicate' => ""
+        ];
+
+        if($duplicateNotification) {
+            $data = [
+                'isDuplicate' => $duplicateNotification
+            ];
+        }
 
         // add `---` at the top of the dropdowns
         $days = DateHelper::getListOfDays();
@@ -304,7 +354,7 @@ class ContactsController extends Controller
         $hasReachedAccountStorageLimit = StorageHelper::hasReachedAccountStorageLimit($contact->account);
         $accountHasLimitations = AccountHelper::hasLimitations($contact->account);
 
-        return view('people.profile')
+        return view('people.profile', $data)
             ->withHasReachedAccountStorageLimit($hasReachedAccountStorageLimit)
             ->withAccountHasLimitations($accountHasLimitations)
             ->withLoveRelationships($loveRelationships)

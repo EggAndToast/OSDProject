@@ -37,7 +37,12 @@
     <div class="mw9 center dt w-100 box-shadow pa4 relative">
 
       <h1 class="tc mb2 mt4">
-        <span class="{{ htmldir() == 'ltr' ? 'mr1' : 'ml1' }}">{{ $contact->name }}</span>
+        <span class="{{ htmldir() == 'ltr' ? 'mr1' : 'ml1' }}">{{ $contact->name }}
+        
+        @if ($isDuplicate)
+            <small style="color:red;"> {{ $isDuplicate }} </small>
+            @endif</span>
+        
         <contact-favorite hash="{{ $contact->hashID() }}" :starred="{{ \Safe\json_encode($contact->is_starred) }}"></contact-favorite>
         @if ($contact->job)
         <span class="db f5 normal">{{ $contact->job }}

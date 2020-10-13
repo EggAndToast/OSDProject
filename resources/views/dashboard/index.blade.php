@@ -19,6 +19,21 @@
             </div>
             @endforeach
           </div>
+          <div class="pb2 tc dn-ns w-100">
+            {{ $duplicateTitle }}
+          </div>
+          <div class="h3 overflow-hidden mb2">
+            <div class="{{ htmldir() == 'ltr' ? 'fl' : 'fr' }} pr2 dn dib-ns v-mid h3" style="line-height: 4rem;">
+            {{ $duplicateTitle }}
+            </div>
+            @foreach($duplicateContact as $contact)
+            <div class="{{ htmldir() == 'ltr' ? 'fl' : 'fr' }} pr2 pointer">
+              <avatar :contact="{{ $contact }}" :clickable="true"></avatar>
+            </div>
+            @endforeach
+          </div>
+
+
         </div>
         <div class="{{ htmldir() == 'ltr' ? 'fl-ns tr' : 'fr-ns tl' }} w-30-ns ph2">
           <a href="{{ route('people.create') }}" class="btn btn-primary w-100 w-auto-ns tc" style="padding: 15px 45px;">
@@ -58,7 +73,6 @@
               </ul>
             </div>
           </div>
-
           <dashboard-log :default-active-tab="'{!! auth()->user()->dashboard_active_tab !!}'"></dashboard-log>
 
           <div class="br3 ba b--gray-monica bg-white mb3">
@@ -82,6 +96,6 @@
         </div>
       </div>
     </section>
-
+    
   </div>
 @endsection
