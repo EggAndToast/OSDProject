@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'Auth\LoginController@showLoginOrRegister')->name('loginRedirect');
 
+Route::get('/albums', 'AlbumController@getList');
+Route::get('/createalbum', array('as' => 'create_album_form','uses' => 'AlbumController@getForm'));
+Route::post('/createalbum', array('as' => 'create_album','uses' => 'AlbumController@postCreate'));
+Route::get('/deletealbum/{id}', array('as' => 'delete_album','uses' => 'AlbumController@getDelete'));
+Route::get('/album/{id}', array('as' => 'show_album','uses' => 'AlbumController@getAlbum'));
+
 Auth::routes(['verify' => true]);
 
 Route::get('/invitations/accept/{key}', 'Auth\InvitationController@show')->name('invitations.accept');

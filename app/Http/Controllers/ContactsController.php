@@ -323,9 +323,6 @@ class ContactsController extends Controller
             if ($contactId == $id->id) {
                 $duplicateNotification = "- Duplicate";
             }
-            else {
-                $duplicateNotification = "";
-            }
         }
 
         $data = [ 

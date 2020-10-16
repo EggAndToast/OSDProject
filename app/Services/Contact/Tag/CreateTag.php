@@ -19,6 +19,7 @@ class CreateTag extends BaseService
         return [
             'account_id' => 'required|integer|exists:accounts,id',
             'name' => 'required|string',
+            'name_slug' => 'unique'
         ];
     }
 

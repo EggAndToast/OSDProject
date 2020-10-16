@@ -115,7 +115,7 @@ class DashboardController extends Controller
 
         if ($referenceId) {
             implode(',', $referenceId);
-            $duplicateTitle = "Duplicate Contacts. Do edit to prevent confusion";
+            $duplicateTitle = "Duplicate Contacts. Do add a description to prevent confusion.";
 
             $duplicateContactsGet = $account->contacts()->whereIn('id', $referenceId)->get();
 

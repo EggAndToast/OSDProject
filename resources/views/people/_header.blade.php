@@ -39,7 +39,7 @@
       <h1 class="tc mb2 mt4">
         <span class="{{ htmldir() == 'ltr' ? 'mr1' : 'ml1' }}">{{ $contact->name }}
         
-        @if ($isDuplicate)
+        @if ($isDuplicate ?? '')
             <small style="color:red;"> {{ $isDuplicate }} </small>
             @endif</span>
         
